@@ -92,7 +92,7 @@ function sendMessage() {
     }
 
     const apiKey = 'sk-hgfpsxnwacjbbivlsaustugthcoqrpgsauoudllsubyutoyy';
-    const endpoint = 'https://api.siliconflow.cn/v1';
+    const endpoint = 'https://api.siliconflow.cn/v1/chat/completions';
 
     const payload = {
         model: "deepseek-ai/DeepSeek-R1",
@@ -100,39 +100,60 @@ function sendMessage() {
             { role: "system", content: "You are a helpful assistant" },
             { role: "user", content: message }
         ],
-        stream: false
+        stream: false,
+        max_tokens: 512,
+        stop: ["null"],
+        temperature: 0.7,
+        top_p: 0.7,
+        top_k: 50,
+        frequency_penalty: 0.5,
+        n: 1,
+        response_format: { type: "text" },
+        tools: [
+            {
+                type: "function",
+                function: {
+                    description: "<string>",
+                    name: "<string>",
+                    parameters: {},
+                    strict: false
+                }
+            }
+        ]
     };
 
-    fetch(endpoint, {
+    const options = {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(data => {
-        // 隐藏加载动画
-        if (loadingElement) {
-            loadingElement.style.display = 'none';
-        }
+    };
 
-        if (data.choices && data.choices.length > 0) {
-            displayMessage('bot', data.choices[0].message.content);
-        } else {
+    fetch(endpoint, options)
+        .then(response => response.json())
+        .then(data => {
+            // 隐藏加载动画
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+
+            if (data.choices && data.choices.length > 0) {
+                displayMessage('bot', data.choices[0].message.content);
+            } else {
+                displayMessage('bot', '出错了，请稍后再试。');
+            }
+        })
+        .catch(error => {
+            // 隐藏加载动画
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+
             displayMessage('bot', '出错了，请稍后再试。');
-        }
-    })
-    .catch(error => {
-        // 隐藏加载动画
-        if (loadingElement) {
-            loadingElement.style.display = 'none';
-        }
-
-        displayMessage('bot', '出错了，请稍后再试。');
-        console.error('Error:', error);
-    });
+            console.error('Error:', error);
+        });
 }
 
 // 添加主题切换功能
