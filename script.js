@@ -95,7 +95,7 @@ function sendMessage() {
     const endpoint = 'https://api.siliconflow.cn/v1';
 
     const payload = {
-        model: "Chat Model",
+        model: "deepseek-ai/DeepSeek-R1",
         messages: [
             { role: "system", content: "You are a helpful assistant" },
             { role: "user", content: message }
